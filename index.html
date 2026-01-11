@@ -1,99 +1,71 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Minecraft JSON Generator (Schema-driven)</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <header class="wrap">
-      <h1>Minecraft JSON Generator</h1>
-      <p class="muted">
-        Load one or more <code>*.schema.json</code> files, fill the generated
-        form, and download the resulting <code>*.json</code>.
-      </p>
-    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Minecraft 1.21.11</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
 
-    <main class="wrap grid">
-      <section class="card">
-        <h2>1) Load schemas</h2>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
 
-        <div class="row">
-          <label class="btn">
-            Load *.schema.json files
-            <input
-              id="schemaFiles"
-              type="file"
-              accept=".json"
-              multiple
-              hidden
-            />
-          </label>
-          <button
-            id="loadExample"
-            class="btn secondary"
-            type="button"
-            title="Loads nothing automatically; just resets UI"
-          >
-            Reset UI
-          </button>
+  <header class="topbar">
+    <div class="topbar__left">
+      <button id="sidebarToggle" class="icon-btn" type="button" aria-label="Toggle sidebar" aria-expanded="true">
+        ☰
+      </button>
+      <div class="brand">
+        <div class="brand__title" id="siteTitle">Minecraft 1.21.11</div>
+        <div class="brand__subtitle" id="siteSubtitle">Repo viewer</div>
+      </div>
+    </div>
+
+    <div class="topbar__right">
+      <label class="search">
+        <span class="sr-only">Search files</span>
+        <input id="searchInput" type="search" placeholder="Search files…" autocomplete="off" />
+      </label>
+
+      <button id="themeToggle" class="icon-btn" type="button" aria-label="Toggle theme">
+        Theme
+      </button>
+
+      <a id="repoLink" class="btn" href="#" target="_blank" rel="noreferrer">GitHub</a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar" aria-label="File sidebar">
+      <div class="sidebar__section">
+        <div class="sidebar__title">Files</div>
+        <div class="sidebar__hint" id="statusLine">Loading…</div>
+      </div>
+
+      <nav class="tree" id="fileTree" aria-label="File list"></nav>
+    </aside>
+
+    <main id="main" class="main" tabindex="-1">
+      <section class="viewer">
+        <div class="viewer__bar">
+          <div class="viewer__path" id="viewerPath">—</div>
+          <div class="viewer__actions">
+            <button id="copyBtn" class="btn" type="button" disabled>Copy</button>
+            <a id="openRawBtn" class="btn" href="#" target="_blank" rel="noreferrer" aria-disabled="true">Open raw</a>
+          </div>
         </div>
 
-        <div class="row">
-          <label class="field">
-            <span>Schema</span>
-            <select id="schemaSelect" disabled></select>
-          </label>
-
-          <label class="field">
-            <span>Output filename</span>
-            <input id="outName" type="text" value="output.json" />
-          </label>
-        </div>
-
-        <div id="schemaMeta" class="meta muted"></div>
-
-        <div id="oneOfPicker" class="row" style="display: none"></div>
-
-        <div class="row">
-          <button id="defaultsBtn" class="btn" type="button" disabled>
-            Fill defaults
-          </button>
-          <button id="clearBtn" class="btn secondary" type="button" disabled>
-            Clear values
-          </button>
-        </div>
-      </section>
-
-      <section class="card">
-        <h2>2) Fill fields</h2>
-        <div id="formRoot" class="formRoot muted">Load schemas to begin.</div>
-      </section>
-
-      <section class="card">
-        <h2>3) Output JSON</h2>
-
-        <div class="row">
-          <button id="copyBtn" class="btn" type="button" disabled>
-            Copy JSON
-          </button>
-          <button id="downloadBtn" class="btn" type="button" disabled>
-            Download .json
-          </button>
-        </div>
-
-        <pre id="jsonPreview" class="preview">{}</pre>
-        <div id="errors" class="errors"></div>
+        <pre class="code" id="codeBlock" aria-label="File content"><code id="codeText"></code></pre>
       </section>
     </main>
+  </div>
 
-    <footer class="wrap muted">
-      <small>
-        Works fully offline in the browser (no build step, no dependencies).
-      </small>
-    </footer>
+  <footer class="footer">
+    <span id="footerLeft">Static viewer</span>
+    <span id="footerRight"></span>
+  </footer>
 
-    <script src="app.js"></script>
-  </body>
+  <script defer src="./app.js"></script>
+</body>
 </html>
