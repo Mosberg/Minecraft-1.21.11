@@ -846,3 +846,213 @@ resetBtn.addEventListener("click", () => {
 
 // initial
 render();
+
+"use strict";
+
+/**
+ * Configure these to match your repo.
+ * If you don’t want remote loading, set USE_REMOTE=false and populate LOCAL_FILES.
+ */
+const CONFIG = {
+  SITE_TITLE: "Minecraft 1.21.11",
+  SITE_SUBTITLE: "Repo viewer",
+  REPO_URL: "https://github.com/Mosberg/Minecraft-1.21.11",
+  USE_REMOTE: false,
+
+  // If USE_REMOTE=true, set these:
+  REMOTE: {
+    RAW_BASE: "https://raw.githubusercontent.com/Mosberg/Minecraft-1.21.11/main/"
+  },
+
+  // If USE_REMOTE=false, set local file paths that are served with the site:
+  LOCAL_FILES: [
+    "pack.mcmeta",
+    "index.html",
+    "styles.css",
+    "app.js"
+  ]
+};
+
+const el = (id) => document.getElementById(id);
+
+const state = {
+  files: [],
+  filtered: [],
+  currentPath: null
+};
+
+function loadPrefs() {
+  const theme = localStorage.getItem("theme");
+  if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme;
+
+  const sidebar = localStorage.getItem("sidebar");
+  if (sidebar === "collapsed") document.body.dataset.sidebar = "collapsed";
+}
+
+function saveTheme(next) {
+  document.documentElement.dataset.theme = next;
+  localStorage.setItem("theme", next);
+}
+
+function toggleTheme() {
+  const cur = document.documentElement.dataset.theme || "dark";
+  saveTheme(cur === "dark" ? "light" : "dark");
+}
+
+function toggleSidebar() {
+  const collapsed = document.body.dataset.sidebar === "collapsed";
+  if (collapsed) {
+    delete document.body.dataset.sidebar;
+    localStorage.setItem("sidebar", "expanded");
+  } else {
+    document.body.dataset.sidebar = "collapsed";
+    localStorage.setItem("sidebar", "collapsed");
+  }
+  const btn = el("sidebarToggle");
+  btn?.setAttribute("aria-expanded", String(!collapsed));
+}
+
+function setStatus(text) {
+  el("statusLine").textContent = text;
+}
+
+function setFooter(rightText) {
+  el("footerRight").textContent = rightText || "";
+}
+
+function normalizePath(p) {
+  return String(p || "").replace(/^\/+/, "");
+}
+
+function fileUrlFor(path) {
+  path = normalizePath(path);
+  if (!path) return null;
+  if (CONFIG.USE_REMOTE) return CONFIG.REMOTE.RAW_BASE + path;
+  return "./" + path;
+}
+
+function renderTree() {
+  const root = el("fileTree");
+  root.textContent = "";
+
+  for (const path of state.filtered) {
+    const a = document.createElement("a");
+    a.className = "tree__item";
+    a.href = `#${encodeURIComponent(path)}`;
+    a.dataset.path = path;
+
+    const label = document.createElement("span");
+    label.textContent = path;
+
+    const badge = document.createElement("span");
+    badge.className = "tree__badge";
+    badge.textContent = path.includes(".") ? path.split(".").pop() : "file";
+
+    a.append(label, badge);
+
+    if (state.currentPath === path) a.setAttribute("aria-current", "page");
+
+    root.appendChild(a);
+  }
+}
+
+function applyFilter(query) {
+  const q = (query || "").trim().toLowerCase();
+  state.filtered = !q
+    ? [...state.files]
+    : state.files.filter(p => p.toLowerCase().includes(q));
+  renderTree();
+  setStatus(`${state.filtered.length}/${state.files.length} shown`);
+}
+
+async function fetchText(path) {
+  const url = fileUrlFor(path);
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to load ${path} (${res.status})`);
+  return await res.text();
+}
+
+function setViewer(path, text) {
+  el("viewerPath").textContent = path || "—";
+  el("codeText").textContent = text || "";
+
+  const copyBtn = el("copyBtn");
+  copyBtn.disabled = !text;
+
+  const openRawBtn = el("openRawBtn");
+  const url = fileUrlFor(path);
+  if (url) {
+    openRawBtn.href = url;
+    openRawBtn.setAttribute("aria-disabled", "false");
+  } else {
+    openRawBtn.href = "#";
+    openRawBtn.setAttribute("aria-disabled", "true");
+  }
+
+  // highlight selection in tree
+  for (const node of el("fileTree").querySelectorAll(".tree__item")) {
+    if (node.dataset.path === path) node.setAttribute("aria-current", "page");
+    else node.removeAttribute("aria-current");
+  }
+}
+
+async function openPathFromHash() {
+  const raw = decodeURIComponent((location.hash || "").slice(1));
+  const path = normalizePath(raw);
+  if (!path) {
+    state.currentPath = null;
+    setViewer(null, "Select a file from the sidebar.");
+    return;
+  }
+
+  state.currentPath = path;
+
+  try {
+    setViewer(path, "Loading…");
+    const text = await fetchText(path);
+    setViewer(path, text);
+    setFooter(path);
+  } catch (e) {
+    setViewer(path, `Error: ${e?.message || e}`);
+  }
+}
+
+async function init() {
+  loadPrefs();
+
+  el("siteTitle").textContent = CONFIG.SITE_TITLE;
+  el("siteSubtitle").textContent = CONFIG.SITE_SUBTITLE;
+  el("repoLink").href = CONFIG.REPO_URL;
+
+  el("themeToggle").addEventListener("click", toggleTheme);
+  el("sidebarToggle").addEventListener("click", toggleSidebar);
+
+  el("copyBtn").addEventListener("click", async () => {
+    const text = el("codeText").textContent || "";
+    await navigator.clipboard.writeText(text);
+    el("copyBtn").textContent = "Copied";
+    setTimeout(() => (el("copyBtn").textContent = "Copy"), 900);
+  });
+
+  el("searchInput").addEventListener("input", (e) => {
+    applyFilter(e.target.value);
+  });
+
+  // populate file list
+  state.files = CONFIG.USE_REMOTE ? [] : [...CONFIG.LOCAL_FILES];
+  state.filtered = [...state.files];
+
+  setStatus(`${state.filtered.length}/${state.files.length} shown`);
+  renderTree();
+
+  window.addEventListener("hashchange", openPathFromHash);
+  await openPathFromHash();
+
+  // If remote mode is enabled but no listing is implemented:
+  if (CONFIG.USE_REMOTE && state.files.length === 0) {
+    setStatus("Remote mode enabled; file listing not configured.");
+    setViewer(null, "Remote mode is enabled, but the file list is empty.\n\nAdd a file index or switch USE_REMOTE=false.");
+  }
+}
+
+init();
