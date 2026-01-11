@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minecraft.net/schemas/pack.mcmeta.schema.json",
+  "title": "Minecraft Resource Pack Metadata",
+  "description": "Schema for pack.mcmeta file in Minecraft 1.21.11 resource packs",
+  "type": "object",
+  "required": ["pack"],
+  "properties": {
+    "pack": {
+      "type": "object",
+      "required": ["description"],
+      "properties": {
+        "description": {
+          "description": "Description of the resource pack",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "color": {
+                  "type": "string"
+                },
+                "bold": {
+                  "type": "boolean"
+                },
+                "italic": {
+                  "type": "boolean"
+                }
+              }
+            }
+          ]
+        },
+        "pack_format": {
+          "description": "Pack format version (use min_format and max_format for 1.21.11)",
+          "type": "integer"
+        },
+        "min_format": {
+          "description": "Minimum pack format version (75 for Minecraft 1.21.11)",
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_format": {
+          "description": "Maximum pack format version (75 for Minecraft 1.21.11)",
+          "type": "integer",
+          "minimum": 1
+        },
+        "supported_formats": {
+          "description": "Range or array of supported format versions",
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "min_inclusive": {
+                  "type": "integer"
+                },
+                "max_inclusive": {
+                  "type": "integer"
+                }
+              }
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "language": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["name", "region", "bidirectional"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "bidirectional": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "filter": {
+      "type": "object",
+      "properties": {
+        "block": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "namespace": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

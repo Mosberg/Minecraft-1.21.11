@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minecraft.net/schemas/models/block/cube_bottom_top.schema.json",
+  "title": "Minecraft Cube Bottom Top Model",
+  "description": "Schema for cube_bottom_top block models (distinct bottom, top, and side textures)",
+  "type": "object",
+  "required": ["parent"],
+  "properties": {
+    "parent": {
+      "type": "string",
+      "enum": ["minecraft:block/cube_bottom_top", "block/cube_bottom_top"],
+      "description": "Must be cube_bottom_top parent"
+    },
+    "textures": {
+      "type": "object",
+      "required": ["bottom", "top", "side"],
+      "properties": {
+        "bottom": {
+          "type": "string",
+          "description": "Bottom face texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "top": {
+          "type": "string",
+          "description": "Top face texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "side": {
+          "type": "string",
+          "description": "All side faces texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "particle": {
+          "type": "string",
+          "description": "Particle texture (defaults to #side)"
+        }
+      }
+    }
+  }
+}

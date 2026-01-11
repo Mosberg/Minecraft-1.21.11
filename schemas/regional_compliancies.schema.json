@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minecraft.net/schemas/regional_compliancies.schema.json",
+  "title": "Minecraft Regional Compliancy Messages",
+  "description": "Schema for regional_compliancies.json in Minecraft 1.21.11",
+  "type": "object",
+  "additionalProperties": {
+    "type": "array",
+    "description": "Array of compliance messages for a region code (e.g., KOR)",
+    "items": {
+      "type": "object",
+      "properties": {
+        "delay": {
+          "type": "integer",
+          "description": "Delay before first message in minutes",
+          "minimum": 0
+        },
+        "period": {
+          "type": "integer",
+          "description": "Period between messages in minutes",
+          "minimum": 1
+        },
+        "title": {
+          "type": "string",
+          "description": "Translation key for message title"
+        },
+        "message": {
+          "type": "string",
+          "description": "Translation key for message body"
+        }
+      },
+      "required": ["period", "title", "message"]
+    }
+  }
+}

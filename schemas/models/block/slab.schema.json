@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minecraft.net/schemas/models/block/slab.schema.json",
+  "title": "Minecraft Slab Model",
+  "description": "Schema for slab block models (half-height blocks)",
+  "type": "object",
+  "required": ["parent"],
+  "properties": {
+    "parent": {
+      "type": "string",
+      "enum": [
+        "minecraft:block/slab",
+        "block/slab",
+        "minecraft:block/slab_top",
+        "block/slab_top"
+      ],
+      "description": "Slab or slab_top parent"
+    },
+    "textures": {
+      "type": "object",
+      "required": ["bottom", "top", "side"],
+      "properties": {
+        "bottom": {
+          "type": "string",
+          "description": "Bottom face texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "top": {
+          "type": "string",
+          "description": "Top face texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "side": {
+          "type": "string",
+          "description": "Side faces texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "particle": {
+          "type": "string",
+          "description": "Particle texture (defaults to #side)"
+        }
+      }
+    }
+  }
+}

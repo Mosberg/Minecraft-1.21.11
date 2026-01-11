@@ -1,0 +1,111 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minecraft.net/schemas/atlas.schema.json",
+  "title": "Minecraft Texture Atlas Definition",
+  "description": "Schema for atlas JSON files in Minecraft 1.21.11 (blocks.json, items.json, etc.)",
+  "type": "object",
+  "required": ["sources"],
+  "properties": {
+    "sources": {
+      "type": "array",
+      "description": "List of texture sources to include in this atlas",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "Include all textures from a directory",
+            "required": ["type", "source"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["minecraft:directory"]
+              },
+              "source": {
+                "type": "string",
+                "description": "Directory path relative to textures/"
+              },
+              "prefix": {
+                "type": "string",
+                "description": "Prefix to add to sprite names"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Include a single texture",
+            "required": ["type", "resource"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["minecraft:single"]
+              },
+              "resource": {
+                "type": "string",
+                "description": "Namespaced texture path",
+                "pattern": "^[a-z0-9_.-]+:[a-z0-9/_.-]+$"
+              },
+              "sprite": {
+                "type": "string",
+                "description": "Override sprite name"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Filter out textures matching pattern",
+            "required": ["type", "pattern"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["minecraft:filter"]
+              },
+              "pattern": {
+                "type": "string",
+                "description": "Regular expression pattern to filter"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Include all textures from a namespace",
+            "required": ["type", "namespace"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["minecraft:namespace"]
+              },
+              "namespace": {
+                "type": "string",
+                "description": "Namespace to include"
+              },
+              "prefix": {
+                "type": "string",
+                "description": "Prefix to add to sprite names"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Permutate texture variations",
+            "required": ["type", "patterns"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["minecraft:paletted_permutations"]
+              },
+              "patterns": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "palette_key": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

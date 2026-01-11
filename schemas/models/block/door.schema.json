@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minecraft.net/schemas/models/block/door.schema.json",
+  "title": "Minecraft Door Model",
+  "description": "Schema for door block models",
+  "type": "object",
+  "required": ["parent"],
+  "properties": {
+    "parent": {
+      "type": "string",
+      "enum": [
+        "minecraft:block/door_bottom_left",
+        "block/door_bottom_left",
+        "minecraft:block/door_bottom_right",
+        "block/door_bottom_right",
+        "minecraft:block/door_top_left",
+        "block/door_top_left",
+        "minecraft:block/door_top_right",
+        "block/door_top_right",
+        "minecraft:block/door_bottom_left_open",
+        "block/door_bottom_left_open",
+        "minecraft:block/door_bottom_right_open",
+        "block/door_bottom_right_open",
+        "minecraft:block/door_top_left_open",
+        "block/door_top_left_open",
+        "minecraft:block/door_top_right_open",
+        "block/door_top_right_open"
+      ],
+      "description": "Door variant parent"
+    },
+    "textures": {
+      "type": "object",
+      "required": ["bottom", "top"],
+      "properties": {
+        "bottom": {
+          "type": "string",
+          "description": "Bottom half texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "top": {
+          "type": "string",
+          "description": "Top half texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "particle": {
+          "type": "string",
+          "description": "Particle texture (defaults to #bottom)"
+        }
+      }
+    }
+  }
+}

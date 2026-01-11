@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minecraft.net/schemas/models/item/block_item.schema.json",
+  "title": "Minecraft Block Item Model",
+  "description": "Schema for block item models (items that reference block models)",
+  "type": "object",
+  "required": ["parent"],
+  "properties": {
+    "parent": {
+      "type": "string",
+      "description": "Parent block model path",
+      "pattern": "^[a-z0-9_.-]+:block/[a-z0-9/_.-]+$",
+      "examples": ["minecraft:block/stone", "minecraft:block/acacia_planks"]
+    },
+    "textures": {
+      "type": "object",
+      "description": "Optional texture overrides (usually inherited from parent)"
+    },
+    "display": {
+      "type": "object",
+      "description": "Optional display transform overrides"
+    }
+  }
+}

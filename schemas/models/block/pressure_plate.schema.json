@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minecraft.net/schemas/models/block/pressure_plate.schema.json",
+  "title": "Minecraft Pressure Plate Model",
+  "description": "Schema for pressure plate block models",
+  "type": "object",
+  "required": ["parent"],
+  "properties": {
+    "parent": {
+      "type": "string",
+      "enum": [
+        "minecraft:block/pressure_plate_up",
+        "block/pressure_plate_up",
+        "minecraft:block/pressure_plate_down",
+        "block/pressure_plate_down"
+      ],
+      "description": "Pressure plate variant parent"
+    },
+    "textures": {
+      "type": "object",
+      "required": ["texture"],
+      "properties": {
+        "texture": {
+          "type": "string",
+          "description": "Pressure plate texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "particle": {
+          "type": "string",
+          "description": "Particle texture (defaults to #texture)"
+        }
+      }
+    }
+  }
+}

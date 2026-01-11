@@ -1,0 +1,286 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minecraft.net/schemas/model.schema.json",
+  "title": "Minecraft Model Definition",
+  "description": "Schema for block and item model JSON files in Minecraft 1.21.11",
+  "type": "object",
+  "properties": {
+    "parent": {
+      "type": "string",
+      "description": "Parent model to inherit from (e.g., minecraft:block/cube_all)",
+      "pattern": "^[a-z0-9_.-]+:[a-z0-9/_.-]+$"
+    },
+    "ambientocclusion": {
+      "type": "boolean",
+      "description": "Enable ambient occlusion (shadows in corners)",
+      "default": true
+    },
+    "render_type": {
+      "type": "string",
+      "description": "Rendering layer",
+      "enum": ["solid", "cutout", "cutout_mipped", "translucent"]
+    },
+    "gui_light": {
+      "type": "string",
+      "description": "Lighting mode for GUI rendering",
+      "enum": ["front", "side"]
+    },
+    "textures": {
+      "type": "object",
+      "description": "Texture variable definitions",
+      "additionalProperties": {
+        "type": "string",
+        "description": "Texture path or variable reference (e.g., minecraft:block/stone or #particle)"
+      }
+    },
+    "elements": {
+      "type": "array",
+      "description": "Cuboid elements that make up the model",
+      "items": {
+        "$ref": "#/definitions/element"
+      }
+    },
+    "display": {
+      "type": "object",
+      "description": "Display transformations for different contexts",
+      "properties": {
+        "thirdperson_righthand": {
+          "$ref": "#/definitions/displayTransform"
+        },
+        "thirdperson_lefthand": {
+          "$ref": "#/definitions/displayTransform"
+        },
+        "firstperson_righthand": {
+          "$ref": "#/definitions/displayTransform"
+        },
+        "firstperson_lefthand": {
+          "$ref": "#/definitions/displayTransform"
+        },
+        "gui": {
+          "$ref": "#/definitions/displayTransform"
+        },
+        "head": {
+          "$ref": "#/definitions/displayTransform"
+        },
+        "ground": {
+          "$ref": "#/definitions/displayTransform"
+        },
+        "fixed": {
+          "$ref": "#/definitions/displayTransform"
+        }
+      }
+    },
+    "overrides": {
+      "type": "array",
+      "description": "Item model overrides based on predicates",
+      "items": {
+        "type": "object",
+        "required": ["predicate", "model"],
+        "properties": {
+          "predicate": {
+            "type": "object",
+            "description": "Conditions for this override",
+            "properties": {
+              "damaged": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "damage": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "pulling": {
+                "type": "number",
+                "enum": [0, 1]
+              },
+              "pull": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "charged": {
+                "type": "number",
+                "enum": [0, 1]
+              },
+              "firework": {
+                "type": "number",
+                "enum": [0, 1]
+              },
+              "throwing": {
+                "type": "number",
+                "enum": [0, 1]
+              },
+              "time": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "custom_model_data": {
+                "type": "integer"
+              }
+            }
+          },
+          "model": {
+            "type": "string",
+            "pattern": "^[a-z0-9_.-]+:[a-z0-9/_.-]+$"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "element": {
+      "type": "object",
+      "required": ["from", "to"],
+      "properties": {
+        "from": {
+          "type": "array",
+          "description": "Starting corner [x, y, z] in pixels (0-16)",
+          "items": {
+            "type": "number",
+            "minimum": -16,
+            "maximum": 32
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "to": {
+          "type": "array",
+          "description": "Ending corner [x, y, z] in pixels (0-16)",
+          "items": {
+            "type": "number",
+            "minimum": -16,
+            "maximum": 32
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "rotation": {
+          "type": "object",
+          "description": "Rotation of this element",
+          "required": ["origin", "axis", "angle"],
+          "properties": {
+            "origin": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "axis": {
+              "type": "string",
+              "enum": ["x", "y", "z"]
+            },
+            "angle": {
+              "type": "number",
+              "enum": [-45, -22.5, 0, 22.5, 45]
+            },
+            "rescale": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "shade": {
+          "type": "boolean",
+          "description": "Enable face shading",
+          "default": true
+        },
+        "faces": {
+          "type": "object",
+          "description": "Face definitions",
+          "properties": {
+            "down": {
+              "$ref": "#/definitions/face"
+            },
+            "up": {
+              "$ref": "#/definitions/face"
+            },
+            "north": {
+              "$ref": "#/definitions/face"
+            },
+            "south": {
+              "$ref": "#/definitions/face"
+            },
+            "west": {
+              "$ref": "#/definitions/face"
+            },
+            "east": {
+              "$ref": "#/definitions/face"
+            }
+          }
+        }
+      }
+    },
+    "face": {
+      "type": "object",
+      "properties": {
+        "uv": {
+          "type": "array",
+          "description": "UV coordinates [x1, y1, x2, y2] in pixels (0-16)",
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 16
+          },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "texture": {
+          "type": "string",
+          "description": "Texture variable reference (e.g., #all, #texture)"
+        },
+        "cullface": {
+          "type": "string",
+          "description": "Direction to cull this face",
+          "enum": ["down", "up", "north", "south", "west", "east"]
+        },
+        "rotation": {
+          "type": "integer",
+          "description": "Texture rotation in degrees",
+          "enum": [0, 90, 180, 270]
+        },
+        "tintindex": {
+          "type": "integer",
+          "description": "Tint index for biome coloring"
+        }
+      }
+    },
+    "displayTransform": {
+      "type": "object",
+      "description": "Display transformation settings",
+      "properties": {
+        "rotation": {
+          "type": "array",
+          "description": "Rotation [x, y, z] in degrees",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "translation": {
+          "type": "array",
+          "description": "Translation [x, y, z] in pixels",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "scale": {
+          "type": "array",
+          "description": "Scale [x, y, z]",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        }
+      }
+    }
+  }
+}

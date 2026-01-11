@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minecraft.net/schemas/models/block/trapdoor.schema.json",
+  "title": "Minecraft Trapdoor Model",
+  "description": "Schema for trapdoor block models",
+  "type": "object",
+  "required": ["parent"],
+  "properties": {
+    "parent": {
+      "type": "string",
+      "enum": [
+        "minecraft:block/template_trapdoor_bottom",
+        "block/template_trapdoor_bottom",
+        "minecraft:block/template_trapdoor_top",
+        "block/template_trapdoor_top",
+        "minecraft:block/template_trapdoor_open",
+        "block/template_trapdoor_open",
+        "minecraft:block/template_orientable_trapdoor_bottom",
+        "block/template_orientable_trapdoor_bottom",
+        "minecraft:block/template_orientable_trapdoor_top",
+        "block/template_orientable_trapdoor_top",
+        "minecraft:block/template_orientable_trapdoor_open",
+        "block/template_orientable_trapdoor_open"
+      ],
+      "description": "Trapdoor variant parent"
+    },
+    "textures": {
+      "type": "object",
+      "required": ["texture"],
+      "properties": {
+        "texture": {
+          "type": "string",
+          "description": "Trapdoor texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "particle": {
+          "type": "string",
+          "description": "Particle texture (defaults to #texture)"
+        }
+      }
+    }
+  }
+}

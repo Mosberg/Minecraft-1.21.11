@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minecraft.net/schemas/models/block/fence_gate.schema.json",
+  "title": "Minecraft Fence Gate Model",
+  "description": "Schema for fence gate block models",
+  "type": "object",
+  "required": ["parent"],
+  "properties": {
+    "parent": {
+      "type": "string",
+      "enum": [
+        "minecraft:block/template_fence_gate",
+        "block/template_fence_gate",
+        "minecraft:block/template_fence_gate_open",
+        "block/template_fence_gate_open",
+        "minecraft:block/template_fence_gate_wall",
+        "block/template_fence_gate_wall",
+        "minecraft:block/template_fence_gate_wall_open",
+        "block/template_fence_gate_wall_open"
+      ],
+      "description": "Fence gate variant parent"
+    },
+    "textures": {
+      "type": "object",
+      "required": ["texture"],
+      "properties": {
+        "texture": {
+          "type": "string",
+          "description": "Fence gate texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "particle": {
+          "type": "string",
+          "description": "Particle texture (defaults to #texture)"
+        }
+      }
+    }
+  }
+}

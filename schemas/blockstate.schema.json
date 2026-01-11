@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minecraft.net/schemas/blockstate.schema.json",
+  "title": "Minecraft Blockstate Definition",
+  "description": "Schema for blockstate JSON files in Minecraft 1.21.11",
+  "type": "object",
+  "oneOf": [
+    {
+      "required": ["variants"],
+      "properties": {
+        "variants": {
+          "type": "object",
+          "description": "Maps block property combinations to models",
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/modelVariant"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/modelVariant"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "required": ["multipart"],
+      "properties": {
+        "multipart": {
+          "type": "array",
+          "description": "Array of conditional model applications",
+          "items": {
+            "type": "object",
+            "properties": {
+              "when": {
+                "description": "Conditions for applying this model part",
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "OR": {
+                        "type": "array",
+                        "items": {
+                          "type": "object"
+                        }
+                      },
+                      "AND": {
+                        "type": "array",
+                        "items": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  }
+                ]
+              },
+              "apply": {
+                "oneOf": [
+                  {
+                    "$ref": "#/definitions/modelVariant"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/definitions/modelVariant"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "modelVariant": {
+      "type": "object",
+      "required": ["model"],
+      "properties": {
+        "model": {
+          "type": "string",
+          "description": "Namespaced ID of the model (e.g., minecraft:block/stone)",
+          "pattern": "^[a-z0-9_.-]+:[a-z0-9/_.-]+$"
+        },
+        "x": {
+          "type": "integer",
+          "description": "Rotation around X axis (0, 90, 180, 270)",
+          "enum": [0, 90, 180, 270]
+        },
+        "y": {
+          "type": "integer",
+          "description": "Rotation around Y axis (0, 90, 180, 270)",
+          "enum": [0, 90, 180, 270]
+        },
+        "uvlock": {
+          "type": "boolean",
+          "description": "Lock UV coordinates during rotation",
+          "default": false
+        },
+        "weight": {
+          "type": "integer",
+          "description": "Weight for random model selection",
+          "minimum": 1,
+          "default": 1
+        }
+      }
+    }
+  }
+}

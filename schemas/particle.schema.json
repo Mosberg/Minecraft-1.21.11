@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minecraft.net/schemas/particle.schema.json",
+  "title": "Minecraft Particle Definition",
+  "description": "Schema for particle JSON files in Minecraft 1.21.11",
+  "type": "object",
+  "required": ["textures"],
+  "properties": {
+    "textures": {
+      "type": "array",
+      "description": "List of texture paths for particle sprites",
+      "items": {
+        "type": "string",
+        "description": "Texture path (e.g., minecraft:angry)",
+        "pattern": "^[a-z0-9_.-]+:[a-z0-9/_.-]+$"
+      },
+      "minItems": 1
+    }
+  }
+}

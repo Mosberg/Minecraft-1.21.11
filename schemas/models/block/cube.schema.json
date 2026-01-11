@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minecraft.net/schemas/models/block/cube.schema.json",
+  "title": "Minecraft Cube Model",
+  "description": "Schema for cube block models (different texture per side)",
+  "type": "object",
+  "required": ["parent"],
+  "properties": {
+    "parent": {
+      "type": "string",
+      "enum": ["minecraft:block/cube", "block/cube"],
+      "description": "Must be cube parent"
+    },
+    "textures": {
+      "type": "object",
+      "properties": {
+        "particle": {
+          "type": "string",
+          "description": "Particle texture"
+        },
+        "down": {
+          "type": "string",
+          "description": "Bottom face texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "up": {
+          "type": "string",
+          "description": "Top face texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "north": {
+          "type": "string",
+          "description": "North face texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "south": {
+          "type": "string",
+          "description": "South face texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "east": {
+          "type": "string",
+          "description": "East face texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "west": {
+          "type": "string",
+          "description": "West face texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        }
+      }
+    }
+  }
+}

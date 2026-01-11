@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minecraft.net/schemas/models/block/cube_column.schema.json",
+  "title": "Minecraft Cube Column Model",
+  "description": "Schema for cube_column block models (logs, pillars with top/side textures)",
+  "type": "object",
+  "required": ["parent"],
+  "properties": {
+    "parent": {
+      "type": "string",
+      "enum": [
+        "minecraft:block/cube_column",
+        "block/cube_column",
+        "minecraft:block/cube_column_horizontal",
+        "block/cube_column_horizontal"
+      ],
+      "description": "Cube column or horizontal variant parent"
+    },
+    "textures": {
+      "type": "object",
+      "required": ["end", "side"],
+      "properties": {
+        "end": {
+          "type": "string",
+          "description": "Top and bottom texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "side": {
+          "type": "string",
+          "description": "Side texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "particle": {
+          "type": "string",
+          "description": "Particle texture (defaults to #side)"
+        }
+      }
+    }
+  }
+}

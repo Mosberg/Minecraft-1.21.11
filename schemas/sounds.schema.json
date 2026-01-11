@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minecraft.net/schemas/sounds.schema.json",
+  "title": "Minecraft Sounds Definition",
+  "description": "Schema for sounds.json in Minecraft 1.21.11 resource packs",
+  "type": "object",
+  "additionalProperties": {
+    "$ref": "#/definitions/soundEvent"
+  },
+  "definitions": {
+    "soundEvent": {
+      "type": "object",
+      "properties": {
+        "sounds": {
+          "type": "array",
+          "description": "List of sound files for this event",
+          "items": {
+            "oneOf": [
+              {
+                "type": "string",
+                "description": "Simple sound file path (relative to assets/minecraft/sounds/)"
+              },
+              {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Sound file path or namespaced ID"
+                  },
+                  "volume": {
+                    "type": "number",
+                    "description": "Volume multiplier (0.0 to 1.0+)",
+                    "minimum": 0,
+                    "default": 1.0
+                  },
+                  "pitch": {
+                    "type": "number",
+                    "description": "Pitch multiplier (0.5 to 2.0)",
+                    "minimum": 0,
+                    "default": 1.0
+                  },
+                  "weight": {
+                    "type": "integer",
+                    "description": "Relative probability of selection",
+                    "minimum": 1,
+                    "default": 1
+                  },
+                  "stream": {
+                    "type": "boolean",
+                    "description": "Stream sound instead of loading into memory",
+                    "default": false
+                  },
+                  "attenuation_distance": {
+                    "type": "integer",
+                    "description": "Distance at which sound starts fading (in blocks)",
+                    "minimum": 0,
+                    "default": 16
+                  },
+                  "preload": {
+                    "type": "boolean",
+                    "description": "Preload sound on resource pack load",
+                    "default": false
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "Sound type",
+                    "enum": ["sound", "event"]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "replace": {
+          "type": "boolean",
+          "description": "Replace sounds from parent packs instead of adding",
+          "default": false
+        },
+        "subtitle": {
+          "type": "string",
+          "description": "Translation key for subtitle text"
+        }
+      }
+    }
+  }
+}

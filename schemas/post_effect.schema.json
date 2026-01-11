@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minecraft.net/schemas/post_effect.schema.json",
+  "title": "Minecraft Post-Processing Effect",
+  "description": "Schema for post-processing effect JSON files in Minecraft 1.21.11",
+  "type": "object",
+  "required": ["passes"],
+  "properties": {
+    "targets": {
+      "type": "array",
+      "description": "Render targets (framebuffers) used by this effect",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Target identifier"
+          },
+          "width": {
+            "type": "integer",
+            "description": "Width in pixels",
+            "minimum": 1
+          },
+          "height": {
+            "type": "integer",
+            "description": "Height in pixels",
+            "minimum": 1
+          },
+          "bilinear": {
+            "type": "boolean",
+            "description": "Use bilinear filtering",
+            "default": true
+          },
+          "useDepth": {
+            "type": "boolean",
+            "description": "Include depth buffer",
+            "default": false
+          }
+        }
+      }
+    },
+    "passes": {
+      "type": "array",
+      "description": "List of shader passes to execute",
+      "items": {
+        "type": "object",
+        "required": ["name", "intarget", "outtarget"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Shader program name (e.g., minecraft:blit)"
+          },
+          "intarget": {
+            "type": "string",
+            "description": "Input target name"
+          },
+          "outtarget": {
+            "type": "string",
+            "description": "Output target name"
+          },
+          "auxtargets": {
+            "type": "array",
+            "description": "Additional texture inputs",
+            "items": {
+              "type": "object",
+              "required": ["name", "id"],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Target name to sample from"
+                },
+                "id": {
+                  "type": "string",
+                  "description": "Sampler uniform name"
+                },
+                "width": {
+                  "type": "integer"
+                },
+                "height": {
+                  "type": "integer"
+                },
+                "bilinear": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "uniforms": {
+            "type": "array",
+            "description": "Shader uniform values",
+            "items": {
+              "type": "object",
+              "required": ["name", "values"],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Uniform variable name"
+                },
+                "values": {
+                  "type": "array",
+                  "description": "Uniform values",
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minecraft.net/schemas/language.schema.json",
+  "title": "Minecraft Language File",
+  "description": "Schema for language JSON files (en_us.json, etc.) in Minecraft 1.21.11",
+  "type": "object",
+  "additionalProperties": {
+    "type": "string",
+    "description": "Translation value for the given key"
+  },
+  "propertyNames": {
+    "pattern": "^[a-z0-9._-]+$"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minecraft.net/schemas/models/block/stairs.schema.json",
+  "title": "Minecraft Stairs Model",
+  "description": "Schema for stairs block models",
+  "type": "object",
+  "required": ["parent"],
+  "properties": {
+    "parent": {
+      "type": "string",
+      "enum": [
+        "minecraft:block/stairs",
+        "block/stairs",
+        "minecraft:block/inner_stairs",
+        "block/inner_stairs",
+        "minecraft:block/outer_stairs",
+        "block/outer_stairs"
+      ],
+      "description": "Stairs variant parent"
+    },
+    "textures": {
+      "type": "object",
+      "required": ["bottom", "top", "side"],
+      "properties": {
+        "bottom": {
+          "type": "string",
+          "description": "Bottom face texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "top": {
+          "type": "string",
+          "description": "Top face texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "side": {
+          "type": "string",
+          "description": "Side faces texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "particle": {
+          "type": "string",
+          "description": "Particle texture (defaults to #side)"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minecraft.net/schemas/models/item/handheld.schema.json",
+  "title": "Minecraft Handheld Item Model",
+  "description": "Schema for handheld item models (tools, weapons with specific holding angles)",
+  "type": "object",
+  "required": ["parent"],
+  "properties": {
+    "parent": {
+      "type": "string",
+      "enum": [
+        "minecraft:item/handheld",
+        "item/handheld",
+        "minecraft:item/handheld_rod",
+        "item/handheld_rod"
+      ],
+      "description": "Must be item/handheld or handheld_rod parent"
+    },
+    "textures": {
+      "type": "object",
+      "properties": {
+        "layer0": {
+          "type": "string",
+          "description": "Base layer texture",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "layer1": {
+          "type": "string",
+          "description": "Second layer texture (optional overlay)",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "layer2": {
+          "type": "string",
+          "description": "Third layer texture (optional overlay)",
+          "pattern": "^(#[a-z_]+|[a-z0-9_.-]+:[a-z0-9/_.-]+)$"
+        },
+        "particle": {
+          "type": "string",
+          "description": "Particle texture (defaults to layer0)"
+        }
+      }
+    },
+    "display": {
+      "type": "object",
+      "description": "Display transformations (pre-configured for handheld items)"
+    },
+    "overrides": {
+      "type": "array",
+      "description": "Model overrides (e.g., for bow pulling, damage)",
+      "items": {
+        "type": "object",
+        "required": ["predicate", "model"],
+        "properties": {
+          "predicate": {
+            "type": "object",
+            "properties": {
+              "pulling": {
+                "type": "number",
+                "enum": [0, 1]
+              },
+              "pull": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "damaged": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "damage": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "throwing": {
+                "type": "number",
+                "enum": [0, 1]
+              },
+              "charged": {
+                "type": "number",
+                "enum": [0, 1]
+              },
+              "firework": {
+                "type": "number",
+                "enum": [0, 1]
+              },
+              "cast": {
+                "type": "number",
+                "enum": [0, 1]
+              }
+            }
+          },
+          "model": {
+            "type": "string",
+            "pattern": "^[a-z0-9_.-]+:[a-z0-9/_.-]+$"
+          }
+        }
+      }
+    }
+  }
+}
