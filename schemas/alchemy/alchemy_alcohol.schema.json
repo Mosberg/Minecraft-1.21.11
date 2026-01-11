@@ -1,0 +1,605 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.invalid/schemas/alchemy_alcohol.schema.json",
+  "title": "Alchemy Alcohol Definition (Enhanced)",
+  "description": "Schema for alchemy:alcohol entries (beer + spirit). Enhanced with conditionals, tighter bounds, and extension keys.",
+  "$comment": "Draft-07. Allows extension keys via x-* and _*. Uses if/then/else to require fields conditionally.",
+  "type": "object",
+  "additionalProperties": false,
+  "patternProperties": {
+    "^x-": {},
+    "^_": {}
+  },
+  "required": [
+    "type",
+    "schema_version",
+    "id",
+    "category",
+    "style",
+    "container",
+    "rarity",
+    "stack_size",
+    "brewing",
+    "stats",
+    "effects",
+    "ingredients",
+    "tags",
+    "loot",
+    "gates",
+    "client"
+  ],
+  "properties": {
+    "type": { "const": "alchemy:alcohol" },
+    "schema_version": { "$ref": "#/definitions/posInt" },
+
+    "id": { "$ref": "#/definitions/namespacedId" },
+    "category": { "type": "string", "enum": ["beer", "spirit"] },
+    "style": { "type": "string", "minLength": 1 },
+
+    "container": { "$ref": "#/definitions/namespacedId" },
+    "rarity": { "$ref": "#/definitions/rarity" },
+    "stack_size": { "$ref": "#/definitions/stackSize" },
+
+    "brew_time_seconds": { "$ref": "#/definitions/nonNegInt" },
+    "brew_time_ticks": { "$ref": "#/definitions/nonNegInt" },
+
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "properties": {
+        "display_name": { "type": "string" },
+        "icon": { "$ref": "#/definitions/namespacedId" },
+        "sort_order": { "type": "integer" },
+        "hidden": { "type": "boolean" },
+        "notes": { "type": "string" },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "pack": { "type": "string" },
+            "author": { "type": "string" },
+            "homepage": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "brewing": { "$ref": "#/definitions/brewing" },
+    "stats": { "$ref": "#/definitions/stats" },
+    "quality": { "$ref": "#/definitions/quality" },
+    "aging": { "$ref": "#/definitions/aging" },
+    "spoilage": { "$ref": "#/definitions/spoilage" },
+    "carbonation": { "$ref": "#/definitions/carbonation" },
+    "visuals": { "$ref": "#/definitions/visuals" },
+
+    "effects": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/statusEffect" },
+      "default": []
+    },
+
+    "ingredients": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/itemStack" },
+      "minItems": 1
+    },
+
+    "tags": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/namespacedId" },
+      "uniqueItems": true,
+      "minItems": 1
+    },
+
+    "loot": { "$ref": "#/definitions/loot" },
+    "gates": { "$ref": "#/definitions/gates" },
+    "client": { "$ref": "#/definitions/alcoholClient" },
+
+    "text": { "$ref": "#/definitions/textKeys" },
+
+    "name_key": { "type": "string" },
+    "lore_key": { "type": "string" },
+    "tooltip_key": { "type": "string" },
+    "effect_text_key": { "type": "string" },
+    "brew_time_text_key": { "type": "string" },
+    "ingredients_text_key": { "type": "string" },
+    "container_text_key": { "type": "string" },
+    "rarity_text_key": { "type": "string" },
+    "category_text_key": { "type": "string" },
+    "flavor_text_key": { "type": "string" },
+    "warning_key": { "type": "string" },
+    "crafting_instructions_key": { "type": "string" },
+
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "properties": {
+        "enabled": { "type": "boolean", "default": true },
+        "override_rarity": { "$ref": "#/definitions/rarity" },
+        "override_stack_size": { "$ref": "#/definitions/stackSize" },
+        "override_loot_weight": { "$ref": "#/definitions/nonNegInt" },
+        "disable_random_failures": { "type": "boolean" },
+        "disable_spoilage": { "type": "boolean" }
+      }
+    }
+  },
+
+  "allOf": [
+    {
+      "$comment": "Text block can be nested under 'text' (beer files) or be root keys (spirit files).",
+      "oneOf": [
+        { "required": ["text"] },
+        {
+          "required": [
+            "name_key",
+            "lore_key",
+            "tooltip_key",
+            "effect_text_key",
+            "brew_time_text_key",
+            "ingredients_text_key",
+            "container_text_key",
+            "rarity_text_key",
+            "category_text_key",
+            "flavor_text_key",
+            "warning_key",
+            "crafting_instructions_key"
+          ]
+        }
+      ]
+    },
+    {
+      "$comment": "Beer vs spirit carbonation expectations.",
+      "if": {
+        "properties": { "category": { "const": "spirit" } },
+        "required": ["category"]
+      },
+      "then": {
+        "properties": {
+          "carbonation": {
+            "properties": {
+              "level": { "const": "none" },
+              "foam": { "properties": { "enabled": { "const": false } } }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "carbonation": {
+            "properties": { "level": { "enum": ["low", "medium", "high"] } }
+          }
+        }
+      }
+    }
+  ],
+
+  "definitions": {
+    "namespacedId": {
+      "type": "string",
+      "pattern": "^[a-z0-9_.-]+:[a-z0-9/_.-]+$"
+    },
+
+    "nonNegInt": { "type": "integer", "minimum": 0 },
+    "posInt": { "type": "integer", "minimum": 1 },
+    "prob": { "type": "number", "minimum": 0, "maximum": 1 },
+
+    "rarity": {
+      "type": "string",
+      "enum": ["common", "uncommon", "rare", "epic", "legendary"]
+    },
+    "stackSize": { "type": "integer", "minimum": 1, "maximum": 64 },
+
+    "temperaturePref": {
+      "type": "string",
+      "enum": ["ambient", "cool", "cold", "warm", "cellar"]
+    },
+
+    "itemStack": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": ["item", "count"],
+      "properties": {
+        "item": { "$ref": "#/definitions/namespacedId" },
+        "count": { "$ref": "#/definitions/posInt" }
+      }
+    },
+
+    "itemStackChance": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": ["item", "count", "chance"],
+      "properties": {
+        "item": { "$ref": "#/definitions/namespacedId" },
+        "count": { "$ref": "#/definitions/posInt" },
+        "chance": { "$ref": "#/definitions/prob" }
+      }
+    },
+
+    "statusEffect": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": ["effect", "duration", "amplifier", "chance"],
+      "properties": {
+        "effect": { "$ref": "#/definitions/namespacedId" },
+        "duration": { "$ref": "#/definitions/nonNegInt" },
+        "amplifier": { "$ref": "#/definitions/nonNegInt" },
+        "chance": { "$ref": "#/definitions/prob" },
+
+        "show_particles": { "type": "boolean" },
+        "show_icon": { "type": "boolean" },
+        "ambient": { "type": "boolean" }
+      }
+    },
+
+    "brewing": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": [
+        "brew_time_seconds",
+        "brew_time_ticks",
+        "station_tags",
+        "difficulty",
+        "batch_size_servings",
+        "byproducts",
+        "failure"
+      ],
+      "properties": {
+        "brew_time_seconds": { "$ref": "#/definitions/nonNegInt" },
+        "brew_time_ticks": { "$ref": "#/definitions/nonNegInt" },
+        "station_tags": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/namespacedId" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "difficulty": { "type": "integer", "minimum": 0, "maximum": 10 },
+        "batch_size_servings": { "$ref": "#/definitions/posInt" },
+
+        "byproducts": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/itemStackChance" },
+          "default": []
+        },
+
+        "failure": {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": { "^x-": {}, "^_": {} },
+          "required": ["enabled"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "base_fail_chance": { "$ref": "#/definitions/prob" },
+            "outcome": { "$ref": "#/definitions/namespacedId" },
+            "extra_effects": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/statusEffect" },
+              "default": []
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": { "enabled": { "const": true } },
+                "required": ["enabled"]
+              },
+              "then": {
+                "required": ["base_fail_chance", "outcome", "extra_effects"]
+              }
+            }
+          ]
+        }
+      }
+    },
+
+    "stats": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": [
+        "alcohol_by_volume",
+        "strength",
+        "intoxication",
+        "nutrition"
+      ],
+      "properties": {
+        "alcohol_by_volume": { "type": "number", "minimum": 0, "maximum": 100 },
+        "strength": { "type": "number", "minimum": 0, "maximum": 1 },
+
+        "intoxication": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value", "decay_rate_per_tick"],
+          "properties": {
+            "value": { "type": "number", "minimum": 0, "maximum": 1 },
+            "decay_rate_per_tick": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+
+        "nutrition": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["hunger", "saturation"],
+          "properties": {
+            "hunger": { "type": "integer", "minimum": 0, "maximum": 20 },
+            "saturation": { "type": "number", "minimum": 0, "maximum": 20 }
+          }
+        }
+      }
+    },
+
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": ["tier", "supports_quality", "quality_on_brew"],
+      "properties": {
+        "tier": { "type": "string", "minLength": 1 },
+        "supports_quality": { "type": "boolean" },
+        "quality_on_brew": { "type": "number", "minimum": 0, "maximum": 1 },
+        "quality_floor": { "type": "number", "minimum": 0, "maximum": 1 },
+        "quality_ceiling": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+
+    "aging": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": ["supported"],
+      "properties": {
+        "supported": { "type": "boolean" },
+        "min_days": { "$ref": "#/definitions/nonNegInt" },
+        "max_days": { "$ref": "#/definitions/nonNegInt" },
+        "preferred_container_tags": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/namespacedId" },
+          "uniqueItems": true
+        },
+        "quality_bonus_per_day": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "risk_per_day_open": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "supported": { "const": true } },
+            "required": ["supported"]
+          },
+          "then": {
+            "required": [
+              "min_days",
+              "max_days",
+              "preferred_container_tags",
+              "quality_bonus_per_day",
+              "risk_per_day_open"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "min_days": { "type": "integer" },
+              "max_days": { "type": "integer" }
+            },
+            "required": ["min_days", "max_days"]
+          },
+          "then": {
+            "properties": { "max_days": { "type": "integer", "minimum": 0 } }
+          }
+        }
+      ]
+    },
+
+    "spoilage": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": ["enabled"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "base_decay_per_day": { "type": "number", "minimum": 0, "maximum": 10 },
+        "opened_decay_multiplier": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "temperature": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "preferred": { "$ref": "#/definitions/temperaturePref" },
+            "hot_decay_multiplier": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10
+            },
+            "cold_decay_multiplier": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "enabled": { "const": true } },
+            "required": ["enabled"]
+          },
+          "then": {
+            "required": [
+              "base_decay_per_day",
+              "opened_decay_multiplier",
+              "temperature"
+            ]
+          }
+        }
+      ]
+    },
+
+    "carbonation": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": ["level", "foam"],
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["none", "low", "medium", "high"]
+        },
+        "foam": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "spill_chance_on_open"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "spill_chance_on_open": { "$ref": "#/definitions/prob" }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "level": { "const": "none" } },
+            "required": ["level"]
+          },
+          "then": {
+            "properties": {
+              "foam": { "properties": { "enabled": { "const": false } } }
+            }
+          }
+        }
+      ]
+    },
+
+    "visuals": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": ["liquid_color", "bubbles", "glow", "particle"],
+      "properties": {
+        "liquid_color": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 16777215
+        },
+        "bubbles": {
+          "type": "string",
+          "enum": ["none", "light", "medium", "heavy"]
+        },
+        "glow": { "type": "string", "enum": ["none", "subtle", "strong"] },
+        "particle": { "$ref": "#/definitions/namespacedId" }
+      }
+    },
+
+    "loot": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": ["weight", "tables"],
+      "properties": {
+        "weight": { "$ref": "#/definitions/nonNegInt" },
+        "tables": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/namespacedId" },
+          "uniqueItems": true,
+          "minItems": 1
+        }
+      }
+    },
+
+    "gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": ["requires_feature_flag", "requires_gamerule_true"],
+      "properties": {
+        "requires_feature_flag": { "$ref": "#/definitions/namespacedId" },
+        "requires_gamerule_true": { "type": "string", "minLength": 1 },
+
+        "requires_mod_loaded": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "min_player_level": { "type": "integer", "minimum": 0 },
+        "world_whitelist": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        }
+      }
+    },
+
+    "alcoholClient": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": [
+        "use_liquid_tint",
+        "show_strength_line",
+        "show_quality_line"
+      ],
+      "properties": {
+        "use_liquid_tint": { "type": "boolean" },
+        "show_strength_line": { "type": "boolean" },
+        "show_quality_line": { "type": "boolean" },
+        "show_spoilage_hint": { "type": "boolean" },
+
+        "show_alcohol_by_volume": { "type": "boolean" },
+        "tooltip_theme": {
+          "type": "string",
+          "enum": ["default", "minimal", "detailed"]
+        }
+      }
+    },
+
+    "textKeys": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": [
+        "name_key",
+        "lore_key",
+        "tooltip_key",
+        "effect_text_key",
+        "brew_time_text_key",
+        "ingredients_text_key",
+        "container_text_key",
+        "rarity_text_key",
+        "category_text_key",
+        "flavor_text_key",
+        "warning_key",
+        "crafting_instructions_key"
+      ],
+      "properties": {
+        "name_key": { "type": "string" },
+        "lore_key": { "type": "string" },
+        "tooltip_key": { "type": "string" },
+        "effect_text_key": { "type": "string" },
+        "brew_time_text_key": { "type": "string" },
+        "ingredients_text_key": { "type": "string" },
+        "container_text_key": { "type": "string" },
+        "rarity_text_key": { "type": "string" },
+        "category_text_key": { "type": "string" },
+        "flavor_text_key": { "type": "string" },
+        "warning_key": { "type": "string" },
+        "crafting_instructions_key": { "type": "string" }
+      }
+    }
+  }
+}
