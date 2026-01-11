@@ -1,0 +1,471 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.invalid/schemas/alchemy_container.schema.json",
+  "title": "Alchemy Container Definition (Enhanced)",
+  "description": "Schema for alchemy:container entries. Enhanced with kind-specific conditionals, payload typing, and extension keys.",
+  "$comment": "Draft-07. Allows extension keys via x-* and _*. Uses if/then/else for container_kind variants.",
+  "type": "object",
+  "additionalProperties": false,
+  "patternProperties": {
+    "^x-": {},
+    "^_": {}
+  },
+  "required": [
+    "type",
+    "id",
+    "container_kind",
+    "stack_size",
+    "rarity",
+    "category",
+    "durability",
+    "liquid",
+    "seal",
+    "pressure",
+    "temperature",
+    "interaction",
+    "client",
+    "gates",
+    "text",
+    "state_storage"
+  ],
+  "properties": {
+    "type": { "const": "alchemy:container" },
+    "id": { "$ref": "#/definitions/namespacedId" },
+    "container_kind": {
+      "type": "string",
+      "enum": ["can", "keg", "flask", "barrel"]
+    },
+
+    "stack_size": { "$ref": "#/definitions/stackSize" },
+    "rarity": { "$ref": "#/definitions/rarity" },
+    "category": { "const": "containers" },
+
+    "durability": { "$ref": "#/definitions/durability" },
+    "wood": { "$ref": "#/definitions/wood" },
+    "liquid": { "$ref": "#/definitions/liquid" },
+    "seal": { "$ref": "#/definitions/seal" },
+    "pressure": { "$ref": "#/definitions/pressure" },
+    "temperature": { "$ref": "#/definitions/temperature" },
+
+    "keg_logic": { "type": "object" },
+    "barrel_logic": { "type": "object" },
+
+    "interaction": { "$ref": "#/definitions/interaction" },
+    "client": { "$ref": "#/definitions/containerClient" },
+    "gates": { "$ref": "#/definitions/gates" },
+    "text": { "$ref": "#/definitions/containerText" },
+    "state_storage": { "$ref": "#/definitions/stateStorage" },
+
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "properties": {
+        "display_name": { "type": "string" },
+        "icon": { "$ref": "#/definitions/namespacedId" },
+        "notes": { "type": "string" }
+      }
+    },
+
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "properties": {
+        "enabled": { "type": "boolean", "default": true },
+        "capacity_multiplier": { "type": "number", "minimum": 0 },
+        "transfer_rate_multiplier": { "type": "number", "minimum": 0 },
+        "disable_pressure_burst": { "type": "boolean" }
+      }
+    }
+  },
+
+  "allOf": [
+    {
+      "$comment": "barrel requires wood + barrel_logic; keg requires keg_logic.",
+      "if": {
+        "properties": { "container_kind": { "const": "barrel" } },
+        "required": ["container_kind"]
+      },
+      "then": { "required": ["wood", "barrel_logic"] }
+    },
+    {
+      "if": {
+        "properties": { "container_kind": { "const": "keg" } },
+        "required": ["container_kind"]
+      },
+      "then": { "required": ["keg_logic"] }
+    },
+    {
+      "$comment": "can is typically non-reopenable; allow extension via x-* if you want to override.",
+      "if": {
+        "properties": { "container_kind": { "const": "can" } },
+        "required": ["container_kind"]
+      },
+      "then": {
+        "properties": {
+          "seal": { "properties": { "reopenable": { "const": false } } }
+        }
+      }
+    }
+  ],
+
+  "definitions": {
+    "namespacedId": {
+      "type": "string",
+      "pattern": "^[a-z0-9_.-]+:[a-z0-9/_.-]+$"
+    },
+
+    "nonNegInt": { "type": "integer", "minimum": 0 },
+    "posInt": { "type": "integer", "minimum": 1 },
+    "prob": { "type": "number", "minimum": 0, "maximum": 1 },
+
+    "rarity": {
+      "type": "string",
+      "enum": ["common", "uncommon", "rare", "epic", "legendary"]
+    },
+    "stackSize": { "type": "integer", "minimum": 1, "maximum": 64 },
+
+    "temperaturePref": {
+      "type": "string",
+      "enum": ["ambient", "cool", "cold", "warm", "cellar"]
+    },
+
+    "durability": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": [
+        "breakable",
+        "max_damage",
+        "fireproof",
+        "explosion_resistance"
+      ],
+      "properties": {
+        "breakable": { "type": "boolean" },
+        "max_damage": { "$ref": "#/definitions/nonNegInt" },
+        "fireproof": { "type": "boolean" },
+        "explosion_resistance": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        }
+      }
+    },
+
+    "wood": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": [
+        "wood_type",
+        "supports_wood_variants",
+        "allowed_wood_types",
+        "flavor_bias"
+      ],
+      "properties": {
+        "wood_type": { "type": "string", "minLength": 1 },
+        "supports_wood_variants": { "type": "boolean" },
+        "allowed_wood_types": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "flavor_bias": { "type": "string" }
+      }
+    },
+
+    "liquid": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": [
+        "can_contain_liquid",
+        "capacity_mb",
+        "accepted_tags",
+        "transfer"
+      ],
+      "properties": {
+        "can_contain_liquid": { "type": "boolean" },
+        "capacity_mb": { "$ref": "#/definitions/nonNegInt" },
+        "accepted_tags": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/namespacedId" },
+          "uniqueItems": true
+        },
+        "default_fill_mb": { "$ref": "#/definitions/nonNegInt" },
+        "transfer": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "fill_rate_mb_per_tick",
+            "pour_rate_mb_per_tick",
+            "allow_partial"
+          ],
+          "properties": {
+            "fill_rate_mb_per_tick": { "$ref": "#/definitions/nonNegInt" },
+            "pour_rate_mb_per_tick": { "$ref": "#/definitions/nonNegInt" },
+            "allow_partial": { "type": "boolean" }
+          }
+        }
+      }
+    },
+
+    "seal": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": [
+        "starts_sealed",
+        "reopenable",
+        "seal_quality",
+        "leak_chance_per_minute_open",
+        "oxidation_multiplier_open",
+        "spoilage_multiplier_open"
+      ],
+      "properties": {
+        "starts_sealed": { "type": "boolean" },
+        "reopenable": { "type": "boolean" },
+        "seal_quality": { "type": "string" },
+        "leak_chance_per_minute_open": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "oxidation_multiplier_open": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "spoilage_multiplier_open": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10
+        }
+      }
+    },
+
+    "pressure": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": [
+        "supports_pressure",
+        "carbonation_style",
+        "max_pressure",
+        "burst"
+      ],
+      "properties": {
+        "supports_pressure": { "type": "boolean" },
+        "carbonation_style": { "type": "string" },
+        "max_pressure": { "type": "number", "minimum": 0, "maximum": 100 },
+        "burst": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "pressure_threshold",
+            "drop_contents_on_burst",
+            "burst_sound"
+          ],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "pressure_threshold": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "drop_contents_on_burst": { "type": "boolean" },
+            "burst_sound": { "$ref": "#/definitions/namespacedId" }
+          }
+        }
+      }
+    },
+
+    "temperature": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": [
+        "insulation_factor",
+        "preferred_serving",
+        "freezing_safe",
+        "heat_safe"
+      ],
+      "properties": {
+        "insulation_factor": { "type": "number", "minimum": 0, "maximum": 10 },
+        "preferred_serving": { "$ref": "#/definitions/temperaturePref" },
+        "freezing_safe": { "type": "boolean" },
+        "heat_safe": { "type": "boolean" }
+      }
+    },
+
+    "interaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": ["use_action", "returns_container", "return_item_id"],
+      "properties": {
+        "use_action": { "type": "string" },
+        "returns_container": { "type": "boolean" },
+        "return_item_id": { "$ref": "#/definitions/namespacedId" },
+
+        "consume_on_use": { "type": "boolean" },
+        "consume_on_drink": { "type": "boolean" },
+
+        "allow_fill_from": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/namespacedId" },
+          "uniqueItems": true
+        },
+        "allow_pour_to": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/namespacedId" },
+          "uniqueItems": true
+        }
+      }
+    },
+
+    "containerClient": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": [
+        "render_mode",
+        "liquid_tint_from_content",
+        "show_fill_level_tooltip",
+        "fill_level_steps"
+      ],
+      "properties": {
+        "render_mode": { "type": "string" },
+        "liquid_tint_from_content": { "type": "boolean" },
+        "show_fill_level_tooltip": { "type": "boolean" },
+        "fill_level_steps": { "$ref": "#/definitions/posInt" }
+      }
+    },
+
+    "gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": ["requires_feature_flag", "requires_gamerule_true"],
+      "properties": {
+        "requires_feature_flag": { "$ref": "#/definitions/namespacedId" },
+        "requires_gamerule_true": { "type": "string", "minLength": 1 }
+      }
+    },
+
+    "containerText": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": [
+        "lore_key",
+        "tooltip_key",
+        "flavor_text_key",
+        "crafting_instructions_key"
+      ],
+      "properties": {
+        "lore_key": { "type": "string" },
+        "tooltip_key": { "type": "string" },
+        "flavor_text_key": { "type": "string" },
+        "crafting_instructions_key": { "type": "string" }
+      }
+    },
+
+    "stateStorage": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": [
+        "mode",
+        "schema_version",
+        "defaults",
+        "item_nbt",
+        "placed_block",
+        "conversion"
+      ],
+      "properties": {
+        "mode": { "type": "string", "enum": ["item", "block", "both"] },
+        "schema_version": { "$ref": "#/definitions/posInt" },
+
+        "defaults": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["payload"],
+          "properties": {
+            "payload": { "$ref": "#/definitions/containerPayload" }
+          }
+        },
+
+        "item_nbt": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "nbt_root", "payload_key", "fields"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "nbt_root": { "type": "string" },
+            "payload_key": { "type": "string" },
+            "fields": { "type": "object" }
+          }
+        },
+
+        "placed_block": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "block_id",
+            "block_entity_id",
+            "sync_to_client",
+            "drops_keep_contents"
+          ],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "block_id": { "$ref": "#/definitions/namespacedId" },
+            "block_entity_id": { "$ref": "#/definitions/namespacedId" },
+            "sync_to_client": { "type": "boolean" },
+            "drops_keep_contents": { "type": "boolean" }
+          }
+        },
+
+        "conversion": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["on_place", "on_break", "merge_strategy"],
+          "properties": {
+            "on_place": { "type": "string" },
+            "on_break": { "type": "string" },
+            "merge_strategy": {
+              "type": "string",
+              "enum": ["replace", "merge", "keep_existing"]
+            }
+          }
+        }
+      }
+    },
+
+    "containerPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content_id",
+        "amount_mb",
+        "quality",
+        "temperature",
+        "pressure",
+        "sealed",
+        "created_time"
+      ],
+      "properties": {
+        "content_id": { "type": "string" },
+        "amount_mb": { "$ref": "#/definitions/nonNegInt" },
+        "quality": { "type": "number", "minimum": 0, "maximum": 1 },
+        "temperature": { "$ref": "#/definitions/temperaturePref" },
+        "pressure": { "type": "number", "minimum": 0, "maximum": 100 },
+        "sealed": { "type": "boolean" },
+        "created_time": { "$ref": "#/definitions/nonNegInt" }
+      }
+    }
+  }
+}

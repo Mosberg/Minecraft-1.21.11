@@ -1,0 +1,198 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.invalid/schemas/alchemy_equipment.schema.json",
+  "title": "Alchemy Equipment Definition (Enhanced)",
+  "description": "Schema for alchemy:equipment entries. Enhanced with structured placement/inventory/aging/upgrades validation and extension keys.",
+  "$comment": "Draft-07. Allows extension keys via x-* and _*.",
+  "type": "object",
+  "additionalProperties": false,
+  "patternProperties": {
+    "^x-": {},
+    "^_": {}
+  },
+  "required": [
+    "type",
+    "schema_version",
+    "id",
+    "name_key",
+    "rarity",
+    "material",
+    "function",
+    "category",
+    "placement",
+    "inventory",
+    "aging",
+    "client",
+    "gates"
+  ],
+  "properties": {
+    "type": { "const": "alchemy:equipment" },
+    "schema_version": { "$ref": "#/definitions/posInt" },
+
+    "id": { "$ref": "#/definitions/namespacedId" },
+    "name_key": { "type": "string" },
+    "rarity": { "$ref": "#/definitions/rarity" },
+    "material": { "type": "string" },
+
+    "function": { "type": "string" },
+    "category": { "const": "equipment" },
+
+    "placement": { "$ref": "#/definitions/placement" },
+    "inventory": { "$ref": "#/definitions/inventory" },
+    "aging": { "$ref": "#/definitions/agingMachine" },
+
+    "wood_variants": { "type": "object" },
+    "interaction": { "type": "object" },
+    "automation": { "type": "object" },
+    "upgrades": { "$ref": "#/definitions/upgrades" },
+
+    "client": { "$ref": "#/definitions/client" },
+    "gates": { "$ref": "#/definitions/gates" },
+
+    "crafting": { "type": "object" },
+    "meta": { "type": "object" }
+  },
+
+  "definitions": {
+    "namespacedId": {
+      "type": "string",
+      "pattern": "^[a-z0-9_.-]+:[a-z0-9/_.-]+$"
+    },
+    "posInt": { "type": "integer", "minimum": 1 },
+    "nonNegInt": { "type": "integer", "minimum": 0 },
+
+    "rarity": {
+      "type": "string",
+      "enum": ["common", "uncommon", "rare", "epic", "legendary"]
+    },
+
+    "placement": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": ["kind", "block_id", "block_entity_id"],
+      "properties": {
+        "kind": { "type": "string", "enum": ["block"] },
+        "block_id": { "$ref": "#/definitions/namespacedId" },
+        "block_entity_id": { "$ref": "#/definitions/namespacedId" },
+        "facing": { "type": "string" },
+        "requires_solid_support": { "type": "boolean" }
+      }
+    },
+
+    "inventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": [
+        "capacity",
+        "stack_limit_per_slot",
+        "accepts_item_tags",
+        "rejects_item_tags",
+        "slot_roles",
+        "quick_move"
+      ],
+      "properties": {
+        "capacity": { "$ref": "#/definitions/posInt" },
+        "stack_limit_per_slot": { "$ref": "#/definitions/posInt" },
+
+        "accepts_item_tags": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/namespacedId" },
+          "uniqueItems": true
+        },
+        "rejects_item_tags": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/namespacedId" },
+          "uniqueItems": true
+        },
+
+        "slot_roles": {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": {
+            "^[0-9]+(-[0-9]+)?$": { "type": "string" }
+          }
+        },
+
+        "quick_move": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "priority"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "priority": {
+              "type": "array",
+              "items": { "type": "string" },
+              "uniqueItems": true
+            }
+          }
+        }
+      }
+    },
+
+    "agingMachine": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": [
+        "recipe_source",
+        "recipe_type",
+        "aging_multiplier",
+        "progress_persists"
+      ],
+      "properties": {
+        "recipe_source": { "type": "string" },
+        "recipe_type": { "$ref": "#/definitions/namespacedId" },
+        "aging_multiplier": { "type": "number", "minimum": 0, "maximum": 100 },
+        "progress_persists": { "type": "boolean" },
+
+        "quality": { "type": "object" },
+        "spoilage": { "type": "object" },
+        "environment_modifiers": { "type": "object" }
+      }
+    },
+
+    "upgrades": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": ["enabled", "slots", "allowed_upgrade_tags", "effects"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "slots": { "$ref": "#/definitions/nonNegInt" },
+        "allowed_upgrade_tags": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/namespacedId" },
+          "uniqueItems": true
+        },
+        "effects": { "type": "object" }
+      }
+    },
+
+    "client": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": ["screen_id"],
+      "properties": {
+        "screen_id": { "$ref": "#/definitions/namespacedId" },
+        "show_progress": { "type": "boolean" },
+        "show_quality": { "type": "boolean" },
+        "show_environment_state": { "type": "boolean" },
+        "block_entity_renderer": { "type": "string" }
+      }
+    },
+
+    "gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {}, "^_": {} },
+      "required": ["requires_feature_flag", "requires_gamerule_true"],
+      "properties": {
+        "requires_feature_flag": { "$ref": "#/definitions/namespacedId" },
+        "requires_gamerule_true": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
